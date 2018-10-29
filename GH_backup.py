@@ -39,7 +39,7 @@ def request(url):
 
 if __name__ == '__main__':
 	start = time.time()
-	print 'Session started @ %s' % time.strftime('%a %d %b %Y - %H:%M')
+	print 'Session started @ %s\n' % time.strftime('%a %d %b %Y - %H:%M')
 	
 	__user__ = sys.argv[1]
 	__token__ = token(filename=sys.argv[2])
@@ -56,6 +56,9 @@ if __name__ == '__main__':
 		if os.path.exists(name): # Repository already cloned
 			print '"%s/" directory found' % name
 
+			cloned = False
+
+
 		else: # Clone the repository
 			print '"%s/" directory not found' % name
 			print 'Cloning repository "%s"' % name
@@ -63,12 +66,14 @@ if __name__ == '__main__':
 			subprocess.call(('git clone --mirror %s %s/.git'
 							 % (repo['ssh_url'], name)).split(' '),
 							stdout=sys.stdout)
+			cloned = True
 
 		print '>>> Entering subdirectory "%s/"' % name
 		os.chdir(name)
 
-		subprocess.call('git config --bool core.bare false'.split(' '),
-						stdout=sys.stdout)
+		if cloned:
+			subprocess.call('git config --bool core.bare false'.split(' '),
+							stdout=sys.stdout)
 
 		print 'Checking branches...'
 		branch_url = repo['branches_url'].split('{')[0]
