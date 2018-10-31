@@ -93,7 +93,7 @@ if __name__ == '__main__':
         print '\n'
 
     print 'Backed up %d repositories' % len(repos)
-    print 'Time elapsed %d sec.' %(time.time() - start)'
+    print 'Time elapsed %d sec.' %(time.time() - start)
     msg = 'Backup finished!'
     print '\n' + msg
     print '=' * len(msg)
