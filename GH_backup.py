@@ -82,15 +82,15 @@ if __name__ == '__main__':
         aux = request(branch_url, multipage=False)
         remote = set([n['name'] for n in aux])
 
-        # Check local branches
-        aux = subprocess.check_output('git branch'.split(' '))
-        local = set(aux.strip().split('\n'))
-
-        common = remote & local
-        local_only = local - remote
-        remote_only = remote - local
 
         if not cloned:
+            # Check local branches
+            aux = subprocess.check_output('git branch'.split(' '))
+            local = set(aux.strip().split('\n'))
+
+            common = remote & local
+            local_only = local - remote
+            remote_only = remote - local
 
             for branch in remote_only:
                 print '- Found new branch in remote: %s' % branch
@@ -114,16 +114,18 @@ if __name__ == '__main__':
             common = remote
 
         # Always keep master last:
-        common = list(common).remove('master')
-        common.append('master')
+        common = list(common)
+        common.remove(u'master')
+        common.append(u'master')
 
         for branch in common:
             print '- Checking out branch %s' % branch
             subprocess.call(('git checkout %s' % branch).split(' '),
                             stdout=sys.stdout)
-            print '- Pulling branch %s' % branch
-            subprocess.call(('git pull origin %s' % branch).split(' '),
-                            stdout=sys.stdout)
+            if not cloned:
+                print '- Pulling branch %s' % branch
+                subprocess.call(('git pull origin %s' % branch).split(' '),
+                                stdout=sys.stdout)
 
         print '<<< Leaving subdirectory "%s/"' % name
         os.chdir('..')
