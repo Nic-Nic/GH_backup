@@ -55,14 +55,14 @@ if __name__ == '__main__':
         print '=' * len(msg) + '\n'
 
         if os.path.exists(name): # Repository already cloned
-            print '"%s/" directory found' % name
+            print '- Directory "%s/" already exists' % name
 
             cloned = False
 
 
         else: # Clone the repository
-            print '"%s/" directory not found' % name
-            print 'Cloning repository "%s"' % name
+            print '- Directory "%s/" not found' % name
+            print '- Cloning repository "%s"' % name
 
             subprocess.call(('git clone --mirror %s %s/.git'
                              % (repo['ssh_url'], name)).split(' '),
@@ -76,18 +76,46 @@ if __name__ == '__main__':
             subprocess.call('git config --bool core.bare false'.split(' '),
                             stdout=sys.stdout)
 
-        print 'Checking branches...'
+        print '- Checking branches...'
+        # Check remote branches
         branch_url = repo['branches_url'].split('{')[0]
         aux = request(branch_url, multipage=False)
-        # Keep 'master' always last
-        branches = [n['name'] for n in aux if n['name'] != 'master']
-        branches.append('master')
+        remote = set([n['name'] for n in aux])
 
-        for branch in branches:
-            print 'Checking out branch %s' % branch
+        # Check local branches
+        aux = subprocess.check_output('git branch'.split(' '))
+        local = set(aux.strip().split('\n'))
+
+        common = remote & local
+        local_only = local - remote
+        remote_only = remote - local
+
+        for branch in remote_only:
+            print '- Found new branch in remote: %s' % branch
+            subprocess.call(('git checkout --track origin/%s'
+                             % branch).split(' '), stdout=sys.stdout)
+
+        for branch in local_only:
+            print '- Local branch %s not in remote anymore' % branch
+            a = raw_input('Do you want to delete local branch %s?\n' %branch)
+
+            if a.lower()[0] == 'y':
+                print '- Deleting branch %s' % branch
+                subprocess.call(('git branch -d %s' % branch).split(' '),
+                                stdout=sys.stdout)
+
+            else:
+                print '- Branch %s is has been kept locally' % branch
+
+        # Always keep master last:
+        common = list(common).remove('master')
+        common.append('master')
+
+        for branch in common:
+            print '- Checking out branch %s' % branch
             subprocess.call(('git checkout %s' % branch).split(' '),
                             stdout=sys.stdout)
-            print 'Pulling branch %s' % branch
+            print '- Pulling branch %s' % branch
             subprocess.call(('git pull origin %s' % branch).split(' '),
                             stdout=sys.stdout)
 
