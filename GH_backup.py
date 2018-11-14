@@ -90,22 +90,28 @@ if __name__ == '__main__':
         local_only = local - remote
         remote_only = remote - local
 
-        for branch in remote_only:
-            print '- Found new branch in remote: %s' % branch
-            subprocess.call(('git checkout --track origin/%s'
-                             % branch).split(' '), stdout=sys.stdout)
+        if cloned:
 
-        for branch in local_only:
-            print '- Local branch %s not in remote anymore' % branch
-            a = raw_input('Do you want to delete local branch %s?\n' %branch)
+            for branch in remote_only:
+                print '- Found new branch in remote: %s' % branch
+                subprocess.call(('git checkout --track origin/%s'
+                                 % branch).split(' '), stdout=sys.stdout)
 
-            if a.lower()[0] == 'y':
-                print '- Deleting branch %s' % branch
-                subprocess.call(('git branch -d %s' % branch).split(' '),
-                                stdout=sys.stdout)
+            for branch in local_only:
+                print '- Local branch %s not in remote anymore' % branch
+                a = raw_input('Do you want to delete local branch %s?\n'
+                              % branch)
 
-            else:
-                print '- Branch %s is has been kept locally' % branch
+                if a.lower()[0] == 'y':
+                    print '- Deleting branch %s' % branch
+                    subprocess.call(('git branch -d %s' % branch).split(' '),
+                                    stdout=sys.stdout)
+
+                else:
+                    print '- Branch %s is has been kept locally' % branch
+
+        if not cloned:
+            common = remote
 
         # Always keep master last:
         common = list(common).remove('master')
