@@ -90,7 +90,7 @@ if __name__ == '__main__':
         local_only = local - remote
         remote_only = remote - local
 
-        if cloned:
+        if not cloned:
 
             for branch in remote_only:
                 print '- Found new branch in remote: %s' % branch
@@ -110,7 +110,7 @@ if __name__ == '__main__':
                 else:
                     print '- Branch %s is has been kept locally' % branch
 
-        if not cloned:
+        if cloned:
             common = remote
 
         # Always keep master last:
