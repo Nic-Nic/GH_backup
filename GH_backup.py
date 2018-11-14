@@ -2,9 +2,7 @@ import os
 import sys
 import json
 import time
-import certifi
 import subprocess
-from StringIO import StringIO
 
 import pycurl
 
@@ -15,27 +13,30 @@ def token(filename='token'):
 
     return aux
 
-def request(url):
+def request(url, multipage=True):
     # Request information to GitHub API
-    c = pycurl.Curl()
 
-    c.setopt(c.CAINFO, certifi.where())
-    c.setopt(c.USERPWD, ':'.join([__user__, __token__]))
-    c.setopt(c.URL, url)
+    dump = []
+    page = 1
 
-    # Load the output as a JSON object
-    buffr = StringIO()
+    while True:
+        c = pycurl.Curl()
 
-    c.setopt(c.WRITEDATA, buffr)
-    c.perform()
+        c.setopt(c.USERPWD, ':'.join([__user__, __token__]))
+        c.setopt(c.URL, url + '&page=%d' %page if multipage else url)
 
-    aux = json.loads(buffr.getvalue())
+        # Load the output as a JSON object
+        aux = json.loads(c.perform_rb())
 
-    # Close buffer and request
-    buffr.close()
-    c.close()
+        c.close()
+        page += 1
 
-    return aux
+        dump.extend(aux)
+
+        if not aux or not multipage:
+            break
+
+    return dump
 
 if __name__ == '__main__':
     start = time.time()
@@ -44,8 +45,7 @@ if __name__ == '__main__':
     __user__ = sys.argv[1]
     __token__ = token(filename=sys.argv[2])
 
-    repos = request('https://api.github.com/%s/repos?type=all&per_page=1000'
-                    % sys.argv[3])
+    repos = request('https://api.github.com/%s/repos?type=all' % sys.argv[3])
 
     for repo in repos:
         name = repo['name']
@@ -78,7 +78,7 @@ if __name__ == '__main__':
 
         print 'Checking branches...'
         branch_url = repo['branches_url'].split('{')[0]
-        aux = request(branch_url)
+        aux = request(branch_url, multipage=False)
         # Keep 'master' always last
         branches = [n['name'] for n in aux if n['name'] != 'master']
         branches.append('master')
@@ -86,6 +86,9 @@ if __name__ == '__main__':
         for branch in branches:
             print 'Checking out branch %s' % branch
             subprocess.call(('git checkout %s' % branch).split(' '),
+                            stdout=sys.stdout)
+            print 'Pulling branch %s' % branch
+            subprocess.call(('git pull origin %s' % branch).split(' '),
                             stdout=sys.stdout)
 
         print '<<< Leaving subdirectory "%s/"' % name
