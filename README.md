@@ -49,10 +49,19 @@ run a backup periodically while saving a log file like this:
 python -u ../GH_backup.py my_gh_email@somewhere.com ../my_token.txt orgs/Atom 2>&1 | tee my_log_file.txt
 ```
 
+In case you want to download your own repositories (user-level) type `user`
+instead of `users/your_username` on the third argument. This way you will be
+able to access your owned and private repositories (including forks) as long as
+the token has the proper permissions.
+
+To learn more about the GitHub API regarding repositories, you can check the
+[corresponding documentation](https://developer.github.com/v3/repos/).
+
 ### Where to get the token
 
 In your GitHub user settings, go to "Developer settings" -> "Personal access
-tokens" and there, generate a new token with the proper access scopes.
+tokens" and there, generate a new token with the proper access scopes (e.g.:
+`repo`).
 
 Once created, copy the key into a file and save it.
 

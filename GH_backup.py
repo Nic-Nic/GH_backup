@@ -45,7 +45,12 @@ if __name__ == '__main__':
     __user__ = sys.argv[1]
     __token__ = token(filename=sys.argv[2])
 
-    repos = request('https://api.github.com/%s/repos?type=all' % sys.argv[3])
+    url = 'https://api.github.com/%s/repos?%s' % (sys.argv[3],
+                                                  '&affiliation=owner'
+                                                  if sys.argv[3] == 'user'
+                                                  else '')
+
+    repos = request(url)
 
     for repo in repos:
         name = repo['name']
