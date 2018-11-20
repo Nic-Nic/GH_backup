@@ -96,8 +96,8 @@ if __name__ == '__main__':
 
             for branch in remote_only:
                 print '- Found new branch in remote: %s' % branch
-                subprocess.call(('git checkout --track origin/%s'
-                                 % branch).split(' '), stdout=sys.stdout)
+                subprocess.call(('git checkout %s' % branch).split(' '),
+                                stdout=sys.stdout)
 
             for branch in local_only:
                 print '- Local branch %s not in remote anymore' % branch
