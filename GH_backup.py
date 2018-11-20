@@ -59,7 +59,6 @@ if __name__ == '__main__':
 
             cloned = False
 
-
         else: # Clone the repository
             print '- Directory "%s/" not found' % name
             print '- Cloning repository "%s"' % name
@@ -82,15 +81,18 @@ if __name__ == '__main__':
         aux = request(branch_url, multipage=False)
         remote = set([n['name'] for n in aux])
 
-
         if not cloned:
             # Check local branches
             aux = subprocess.check_output('git branch'.split(' '))
-            local = set(aux.strip().split('\n'))
+            local = set([r.strip('* ') for r in aux.strip().split('\n')])
 
             common = remote & local
             local_only = local - remote
             remote_only = remote - local
+
+            #print 'REMOTE:', remote
+            #print 'LOCAL:', local
+            #print 'COMMON:', common
 
             for branch in remote_only:
                 print '- Found new branch in remote: %s' % branch
