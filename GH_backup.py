@@ -111,7 +111,7 @@ if __name__ == '__main__':
 
                 if a.lower()[0] == 'y':
                     print '- Deleting branch %s' % branch
-                    subprocess.call(('git branch -d %s' % branch).split(' '),
+                    subprocess.call(('git branch -D %s' % branch).split(' '),
                                     stdout=sys.stdout)
 
                 else:
