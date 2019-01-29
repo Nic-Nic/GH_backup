@@ -4,8 +4,8 @@ This script allows the user to download and/or pull all repositories of a given
 user or organization (according to their permissions).
 
 **Author:**  | Nicolàs Palacio-Escat
------------- | --------------------------
-**Contact:** | nicolaspalacio91@gmail.com
+------------ | ------------------------------------------
+**Contact:** | nicolas.palacio@bioquant.uni-heidelberg.de
 
 
 ## Installation
